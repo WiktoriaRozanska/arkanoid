@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+canvas {
+  border:1px solid #d3d3d3;
+  background-color: #f1f1f1;
+}
+</style>
+</head>
+<canvas id="myCanvas" width="480" height="320"></canvas>
+
+<script>
+      var canvas = document.getElementById("myCanvas");
+      var ctx = canvas.getContext("2d");
+      var ballRadius = 10;
+      var x = canvas.width/2;
+      var y = canvas.height-30;
+      var dx = 1;
+      var dy = -1;
+      var speedX = 0;
+      var paddleHeight = 20;
+      var paddleWidth = 100;
+      var paddleX = (canvas.width-paddleWidth)/2;
+      var rightPressed = false;
+      var leftPressed = false;
+
+      document.addEventListener("keydown", keyDownHandler, false);
+      document.addEventListener("keyup", keyUpHandler, false);
+
+      function keyDownHandler(e) {
+          if(e.key == "Right" || e.key == "ArrowRight") {
+              rightPressed = true;
+          }
+          else if(e.key == "Left" || e.key == "ArrowLeft") {
+              leftPressed = true;
+          }
+      }
+
+      function keyUpHandler(e) {
+          if(e.key == "Right" || e.key == "ArrowRight") {
+              rightPressed = false;
+          }
+          else if(e.key == "Left" || e.key == "ArrowLeft") {
+              leftPressed = false;
+          }
+      }
+
+      function drawBall() {
+          ctx.beginPath();
+          ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+          ctx.fillStyle = "#e34d93";
+          ctx.fill();
+          ctx.closePath();
+      }
+      
+      function drawPaddle() {
+          ctx.beginPath();
+          ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+          ctx.fillStyle = "#4d4d4d";
+          ctx.fill();
+          ctx.closePath();
+      }
+
+      function moveleft() {
+        speedX -= 1; 
+      }
+
+      function moveright() {
+        speedX += 1; 
+      }
+
+      function clearmove(){
+        speedX = 0
+      }
+
+      function draw() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          drawBall();
+          drawPaddle();
+          
+          if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
+              dx = -dx;
+          }
+          if(y + dy < ballRadius) {
+              dy = -dy;
+          }
+          else if( ( y + dy > canvas.height-ballRadius - paddleHeight) && ( x > paddleX && x < paddleX + paddleWidth )){
+            console.log("COLISION");
+            dy = -dy;
+          }
+          else if(y + dy > canvas.height-ballRadius) {
+            clearInterval(interval); 
+          }
+          
+          paddleX += speedX;
+
+          if(rightPressed && paddleX < canvas.width-paddleWidth) {
+              paddleX += 1;
+          }
+          else if(leftPressed && paddleX > 0) {
+              paddleX -= 1;
+          }
+          
+          x += dx;
+          y += dy;
+      }
+
+      var interval = setInterval(draw, 10);
+
+      function stop(){
+        console.log("STOP");
+        clearInterval(interval);
+      }
+
+      function start(){
+        console.log("START");
+        clearInterval(interval);
+        interval = setInterval(draw, 10);
+      }
+
+      function reset(){
+        canvas = document.getElementById("myCanvas");
+        ctx = canvas.getContext("2d");
+        ballRadius = 10;
+        x = canvas.width/2;
+        y = canvas.height-30;
+        dx = 1;
+        dy = -1;
+        speedX = 0;
+        paddleHeight = 20;
+        paddleWidth = 100;
+        paddleX = (canvas.width-paddleWidth)/2;
+        rightPressed = false;
+        leftPressed = false;
+        draw();
+      }
+    </script>
+    <div style="text-align:center;width:480px;">
+    <button onmousedown="moveleft()"  ontouchstart="moveleft()" onmouseup="clearmove()">LEFT</button>
+    <button onmousedown="moveright()" ontouchstart="moveright()" onmouseup="clearmove()">RIGHT</button><br><br>
+    <div style="text-align:center;width:480px;">
+    <button onmousedown="stop()">STOP</button>
+    <button onmousedown="start()">START</button><br><br>
+    <div style="text-align:center;width:480px;">
+    <button onmousedown="reset()">RESET</button>
+</body>
+</html>
